@@ -15,11 +15,19 @@ link_libraries(Boost::boost)
 add_library(asynce SHARED ${HEAD} ${SOURCES})
 
 add_executable(logger main.cpp ${HEAD} ${SOURCES})
+add_executable(client asio_client.cpp )
 
 set_target_properties(logger   PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
 )
+
+
+set_target_properties(client   PROPERTIES
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+)
+
 
 target_include_directories( logger PRIVATE async server)
 #target_link_libraries(logger PRIVATE asynce)
@@ -29,6 +37,7 @@ set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 
 #if(Boost_found)
 target_link_libraries(logger ${Boost_LIBRARIES})
+target_link_libraries(client ${Boost_LIBRARIES})
 #else()
 #message(FATAL_ERROR,"BOOST NOT FOUND!!")
 #endif()

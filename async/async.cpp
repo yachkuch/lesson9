@@ -101,7 +101,21 @@ void async::disconnect()
     recieve("EOF",3);
 }
 
-void async::operator()(int ,std::string data)
+void async::operator()(int val,std::string data)
 {
-    
+    if(data.size() == 0)
+    {
+        connect(val);
+    }
+    else 
+    {
+    if(val == 1)
+    {
+        recieve(data.c_str(),data.size());
+    }
+    else 
+    {
+        std::cout<<"I dont know what to do with "<<data<<std::endl;
+    }
+    }
 }

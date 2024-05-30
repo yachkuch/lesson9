@@ -85,12 +85,11 @@ public:
     void operator() (int ,std::string data);
 
 private:
-    std::shared_ptr<std::thread> log;
 
-    std::shared_ptr<std::mutex> logMut;
-    std::shared_ptr<std::mutex> writeInComVect;
-    std::shared_ptr<std::atomic<int>> dynamcicBlockCounter;
-    std::shared_ptr<std::atomic<int>> blockCommandSize;
+    std::shared_ptr<std::mutex> logMut{std::make_shared<std::mutex>()};
+    std::shared_ptr<std::mutex> writeInComVect{std::make_shared<std::mutex>()};
+    std::shared_ptr<std::atomic<int>> dynamcicBlockCounter{std::make_shared<std::atomic<int>>(0)};
+    std::shared_ptr<std::atomic<int>> blockCommandSize{std::make_shared<std::atomic<int>>(0)};
 
     std::vector<std::string> commandsVector;
     void printer(std::vector<std::string> prints_);

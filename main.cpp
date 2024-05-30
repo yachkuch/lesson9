@@ -35,7 +35,10 @@ int main(int, char**)
     std::cout << "Hello, from logger!\n";
     async a;
     boost::asio::io_context context;
-    Server serv(context,"127.0.0.1",9000);
+    std::cout<<"Give me port number"<<std::endl;
+    int port{};
+    std::cin>>port;
+    Server serv(context,"127.0.0.1",port);
     serv.on_message_.connect(a);
     context.run();
 }
