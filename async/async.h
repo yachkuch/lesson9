@@ -61,7 +61,6 @@ class async
         {
             fileThreadA.get()->open("1.txt");
             fileThreadB.get()->open("2.txt");
-            fileThreadA->write("skd",3);
             if(!fileThreadA.get()->is_open()) std::abort();
             if(!fileThreadB.get()->is_open()) std::abort();
         }

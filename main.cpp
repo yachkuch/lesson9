@@ -29,6 +29,11 @@ void writes(async &a)
     
 // }
 
+void start(boost::asio::io_context &context)
+{
+    context.run();
+}
+
 int main(int, char**)
 {
     
@@ -40,6 +45,7 @@ int main(int, char**)
     std::cin>>port;
     Server serv(context,"127.0.0.1",port);
     serv.on_message_.connect(a);
-    context.run();
-    writes(a);
+    std::thread thread(start,std::ref(context));
+    //writes(a);
+    thread.join();
 }
