@@ -19,19 +19,19 @@ const std::unordered_map<std::string, e_CommansType> commandTypes =
 
 void async::printer(std::vector<std::string> prints_)
 {
-    logMut.lock();
+    logMut.get()->lock();
     for (const auto &el : prints_)
     {
         std::cout << el << " ";
     }
     std::cout << std::endl;
-    logMut.unlock();
+    logMut.get()->unlock();
 }
 
 int async::connect(int blocCommandSize_)
 {
-    this->blockCommandSize = blocCommandSize_;
-    return blockCommandSize;
+     this->blockCommandSize.get()->operator=(blocCommandSize_);
+    return blockCommandSize.get()->load();
 }
 
 void async::recieve(const char *command_, int size_)
@@ -41,24 +41,24 @@ void async::recieve(const char *command_, int size_)
         printer(commandsVector);
     }
     std::string com{command_};
-    logMut.lock();
+    logMut->lock();
     logger.log_data(com);
     commandsVector.push_back(com);
-    logMut.unlock();
+    logMut->unlock();
     auto val = commandTypes.find(com);
     if(val != commandTypes.end())
     {
         switch (val.operator*().second)
         {
         case e_CommansType::NEW_BLOCK:
-            dynamcicBlockCounter.operator++(1);
+            dynamcicBlockCounter->operator++(1);
             break;
         default:
         {
             if(dynamcicBlockCounter != 0)
             {
-                dynamcicBlockCounter--;
-                logMut.lock();
+                dynamcicBlockCounter->operator--();
+                logMut->lock();
                 auto iter = commandsVector.rbegin();
                 int counter = 0;
                 while(iter != commandsVector.rend())
@@ -72,7 +72,7 @@ void async::recieve(const char *command_, int size_)
                     }
                     std::cout<<*iter<<" ";
                 }
-                logMut.unlock();
+                logMut->unlock();
             }
             else 
             {
@@ -86,7 +86,7 @@ void async::recieve(const char *command_, int size_)
     {
         if(dynamcicBlockCounter == 0)
         {
-            blockCommandSize--;
+            blockCommandSize->operator--();
             if(blockCommandSize == 0)
             {
                 printer(commandsVector);
@@ -99,4 +99,9 @@ void async::recieve(const char *command_, int size_)
 void async::disconnect()
 {
     recieve("EOF",3);
+}
+
+void async::operator()(int ,std::string data)
+{
+    
 }

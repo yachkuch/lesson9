@@ -16,12 +16,12 @@
 /// @brief async
 ///
 
-const auto writer = [](std::string deta, std::atomic<bool> &flag,std::ofstream &fstream)
+const auto writere = [](std::string deta, std::shared_ptr<std::atomic<bool>> flag,std::shared_ptr<std::ofstream> fstream)
 {
-    flag = false;
+    flag->operator=(false);
     deta.append("\n");
-    fstream.write(deta.data(),deta.size());
-    flag = true;
+    fstream->write(deta.data(),deta.size());
+    flag->operator=(true);
 };
 
 class async
@@ -29,60 +29,68 @@ class async
 
     class logger_Class
     {
-        std::thread file1;
-        std::thread file2;
 
-        std::ofstream fileThreadA;
-        std::ofstream fileThreadB;
+        std::shared_ptr<std::ofstream> fileThreadA;
+        std::shared_ptr<std::ofstream> fileThreadB;
 
-        std::atomic<bool> flag1{true};
-        std::atomic<bool> flag2{true};
+        std::shared_ptr<std::atomic<bool>> flag1 ;
+        std::shared_ptr<std::atomic<bool>> flag2;
 
     public:
         void log_data(std::string data)
         {
-            if (flag1 == true)
+            // ошибка возможна утечка памяти
+            if (flag1.get()->load() == true)
             {
-                file1 = std::thread(writer,data,std::ref(flag1),std::ref(fileThreadA));
+                auto file1 = std::thread(writere,std::move(data),flag1,fileThreadA);
                 file1.detach();
             }
-            else if (flag2 == true)
+            else if (flag1.get()->load()== true)
             {
                 
-                file2 = std::thread(writer,data,std::ref(flag2),std::ref(fileThreadB));
-                file2.detach();
+                auto file1 = std::thread(writere,std::move(data),flag2,fileThreadB);
+                file1.detach();
             }
             else
             {
                 log_data(data);
             }
         }
-        logger_Class()
+        logger_Class() : flag1(std::make_shared<std::atomic<bool>>(true)), flag2(std::make_shared<std::atomic<bool>>(true)),
+        fileThreadA(std::make_shared<std::ofstream>()), fileThreadB(std::make_shared<std::ofstream>())
         {
-            fileThreadA.open("1.txt");
-            fileThreadB.open("2.txt");
+            fileThreadA.get()->open("1.txt");
+            fileThreadB.get()->open("2.txt");
         }
         ~logger_Class()
         {
-            fileThreadA.close();
-            fileThreadB.close();
+            fileThreadA.get()->close();
+            fileThreadB.get()->close();
         }
+
+        logger_Class &operator=(const logger_Class &log) = default;
+        logger_Class &operator=(logger_Class &&log) = default;
+        logger_Class(const logger_Class &log) = default;
+        logger_Class( logger_Class &&log) = default;
     };
 
 public:
     async() = default;
-
+    async(const async &as) = default;
+    async(async &&as) = default;
     int connect(int blocCommandSize_);
     void recieve(const char *command_, int size_);
     void disconnect();
 
-private:
-    std::thread log;
+    void operator() (int ,std::string data);
 
-    std::mutex logMut;
-    std::mutex writeInComVect;
-    std::atomic<int> dynamcicBlockCounter;
-    std::atomic<int> blockCommandSize{};
+private:
+    std::shared_ptr<std::thread> log;
+
+    std::shared_ptr<std::mutex> logMut;
+    std::shared_ptr<std::mutex> writeInComVect;
+    std::shared_ptr<std::atomic<int>> dynamcicBlockCounter;
+    std::shared_ptr<std::atomic<int>> blockCommandSize;
 
     std::vector<std::string> commandsVector;
     void printer(std::vector<std::string> prints_);

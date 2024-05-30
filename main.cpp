@@ -1,35 +1,41 @@
 #include <iostream>
 #include <algorithm>
 #include "async/async.h"
+#include <boost/signals2.hpp>
+#include <boost/asio/io_context.hpp>
+#include "Server.h"
+#include <memory>
+// void writes(async &a)
+// {
+//     a.connect(4);
+//     for(int i = 0; i <10000; i++)
+//     {
+//     a.recieve("a",1);
+//     a.recieve("a",1);
+//     a.recieve("a",1);
+//     a.recieve("{",1);
+//     a.recieve("b",1);
+//     a.recieve("b",1);
+//     a.recieve("c",1);
+//     a.recieve("}",1);
+//     a.recieve("{",1);
+//     }
+// }
 
-void write(async &a)
-{
-    a.connect(4);
-    for(int i = 0; i <10000; i++)
-    {
-    a.recieve("a",1);
-    a.recieve("a",1);
-    a.recieve("a",1);
-    a.recieve("{",1);
-    a.recieve("b",1);
-    a.recieve("b",1);
-    a.recieve("c",1);
-    a.recieve("}",1);
-    a.recieve("{",1);
-    }
-}
+// void smth(async &a)
+// {
+//     a.connect(4);
+//     std::cout<<"sdf"<<std::endl;
+    
+// }
 
 int main(int, char**)
 {
+    
     std::cout << "Hello, from logger!\n";
     async a;
-    std::thread t(write,std::ref(a));
-    std::thread t1(write,std::ref(a));
-    std::thread t2(write,std::ref(a));
-    t.detach();
-    t1.detach();
-    t2.detach();
-    std::cout<<"Hello, from logger\n";
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    std::cout<<"Hello, from logger\n";
+    boost::asio::io_context context;
+    Server serv(context,"127.0.0.1",9000);
+    serv.on_message_.connect(a);
+    context.run();
 }
