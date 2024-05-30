@@ -50,13 +50,19 @@ Server::Server( boost::asio::io_context &context_,std::string adr, unsigned shor
 
 void Server::sendData(std::string data)
 {
+    static int a = 0;
+    if(a == 0)
+    {
+      a++;
+      on_message_(std::stoi(data),"");
+    }
+    else 
     on_message_(1,data);
 }
 
 void Server::handle_accept(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
 {
   std::cout << "New connection" << std::endl;
-  //auto s = new Session(context_, std::move(socket), this);
   auto ses = std::make_shared<Session>(context_, std::move(socket), *this);
   ses->run();
 }

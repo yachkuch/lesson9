@@ -5,22 +5,22 @@
 #include <boost/asio/io_context.hpp>
 #include "Server.h"
 #include <memory>
-// void writes(async &a)
-// {
-//     a.connect(4);
-//     for(int i = 0; i <10000; i++)
-//     {
-//     a.recieve("a",1);
-//     a.recieve("a",1);
-//     a.recieve("a",1);
-//     a.recieve("{",1);
-//     a.recieve("b",1);
-//     a.recieve("b",1);
-//     a.recieve("c",1);
-//     a.recieve("}",1);
-//     a.recieve("{",1);
-//     }
-// }
+void writes(async &a)
+{
+    a.connect(4);
+    for(int i = 0; i <10000; i++)
+    {
+    a.recieve("a",1);
+    a.recieve("a",1);
+    a.recieve("a",1);
+    a.recieve("{",1);
+    a.recieve("b",1);
+    a.recieve("b",1);
+    a.recieve("c",1);
+    a.recieve("}",1);
+    a.recieve("{",1);
+    }
+}
 
 // void smth(async &a)
 // {
@@ -41,4 +41,5 @@ int main(int, char**)
     Server serv(context,"127.0.0.1",port);
     serv.on_message_.connect(a);
     context.run();
+    writes(a);
 }

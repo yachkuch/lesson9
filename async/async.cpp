@@ -55,7 +55,7 @@ void async::recieve(const char *command_, int size_)
             break;
         default:
         {
-            if(dynamcicBlockCounter != 0)
+            if(dynamcicBlockCounter->load() != 0)
             {
                 dynamcicBlockCounter->operator--();
                 logMut->lock();
@@ -84,7 +84,7 @@ void async::recieve(const char *command_, int size_)
     }
     else
     {
-        if(dynamcicBlockCounter == 0)
+        if(dynamcicBlockCounter->load() == 0)
         {
             blockCommandSize->operator--();
             if(blockCommandSize == 0)
